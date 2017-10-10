@@ -25,28 +25,22 @@ WebCamRunner::WebCamRunner() {
 
 	// Check if settings exist
 	if (!(webcam_settings.lookupValue("count",m_webcamCount)
-			&& webcam_settings.lookupValue("frame_hight",m_frame_height)
+			&& webcam_settings.lookupValue("frame_height",m_frame_height)
 			&& webcam_settings.lookupValue("frame_width",m_frame_width)
 			&& webcam_settings.lookupValue("framerate",m_framerate))){
 		string cerr = "ERROR: Setting not found in config file!";
 		throw cerr;
 	}
 
-	// print config
-//	cout << "count=" << m_webcamCount << "\n"
-//			<< "frame_hight=" << m_frame_height << "\n"
-//			<< "frame_width=" << m_frame_width << "\n"
-//			<< "framerate=" << m_framerate << "\n" << endl;
-
 	// set capture state true
 	if(m_webcamCount < 1){
-		string err = "ERR:webcamCount < 1";
+		string err = "ERROR: webcamCount < 1";
 		throw err;
 	}
 
 	m_state = true;
 	// Create Webcams
-	cout << "Creat Webcams" << endl;
+	cout << "Creating Webcams" << endl;
 	try {
 		// Generate time stamp for directory_name and video files
 		time_t timer;
@@ -261,7 +255,7 @@ void WebCamRunner::startWebcamCapture() {
 					throw err;
 				}
 			}
-			cout << "Webcam Thread stoped" << endl;
+			cout << "Webcam Thread stopped" << endl;
 		}
 
 	} catch (string &e) {

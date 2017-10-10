@@ -8,6 +8,12 @@
  *
  */
 
+/*
+ * Edited in October 2017
+ * by Andreas Ray
+ *
+ */
+
 #include "NetworkListener.h"
 #include <string.h>
 

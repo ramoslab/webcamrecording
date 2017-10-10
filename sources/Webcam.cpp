@@ -73,7 +73,7 @@ void Webcam::createVideoCapturer() {
 
 	VideoCapture capture(m_cam_nr);
 	if (!capture.isOpened()) {
-		string err = "ERROR: Webcam not found : CAM" + std::to_string(m_cam_nr);
+		string err = "ERROR: Webcam not found (CAM" + std::to_string(m_cam_nr) + ")";
 		throw err;
 	}
 
@@ -93,8 +93,8 @@ void Webcam::createVideoWriter() {
 	VideoWriter video(m_file_name, m_codec, m_framerate,
 			Size(m_frame_width, m_frame_height), true);
 	if (!video.isOpened()) {
-		string err = "ERROR: Video file can,t be generated for CAM"
-				+ std::to_string(m_cam_nr);
+		string err = "ERROR: Video file cannot be generated (CAM"
+				+ std::to_string(m_cam_nr) + ")";
 		throw err;
 	}
 	m_video = video;
@@ -105,8 +105,8 @@ void Webcam::createVideoWriter() {
  */
 bool Webcam::getWebcamStream(Mat *frame) {
 	if (!m_capture.isOpened()) {
-		string err = "ERROR: Webcam not found during capture : CAM"
-				+ std::to_string(m_cam_nr);
+		string err = "ERROR: Webcam not found during capture (CAM"
+				+ std::to_string(m_cam_nr) + ")";
 		throw err;
 	}
 	m_capture.read(*frame);
@@ -118,8 +118,8 @@ bool Webcam::getWebcamStream(Mat *frame) {
  */
 void Webcam::setWebcamStream(Mat *frame) {
 	if (!m_video.isOpened()) {
-		string err = "ERROR: Video file not found CAM"
-				+ std::to_string(m_cam_nr);
+		string err = "ERROR: Video file not found (CAM"
+				+ std::to_string(m_cam_nr) + ")";
 		throw err;
 	}
 	m_video.write(*frame);

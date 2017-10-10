@@ -104,7 +104,7 @@ void NetworkListener::udplisten() {
 	// Open UDP Server Socket
 	server_sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (server_sock < 0) {
-		perror("ERROR: opening socket");
+		perror("ERROR: Could open socket");
 		return;
 	}
 
@@ -119,13 +119,13 @@ void NetworkListener::udplisten() {
 	server_length = sizeof(serv_addr);
 	rc = ::bind(server_sock, (struct sockaddr *) &serv_addr, server_length);
 	if (rc < 0) {
-		perror("ERORR: on binding");
+		perror("ERORR: Could not bind socket");
 		return;
 	}
 	string folder_name = "<task-id>";
 
 	// Listening Loop
-	cout << "Listen for UDP Signal" << endl;
+	cout << "Listening for commands (UDP)" << endl;
 	while (true) {
 		memset(buffer, 0, m_buffer_size);
 		client_length = sizeof(cli_addr);
@@ -148,7 +148,7 @@ void NetworkListener::udplisten() {
 				cout << "Webcam Thread started" << endl;
 			}
 
-			// if top command is received
+			// if stop command is received
 			else if (strcmp(buffer, stop.c_str()) == 0 && runs == true) {
 
 				runs = false;
