@@ -55,7 +55,7 @@ private:
 	Config cfg;
 
 	//File Renaming
-	bool m_reanmed;
+	bool m_renamed;
 	string m_new_name;
 
 

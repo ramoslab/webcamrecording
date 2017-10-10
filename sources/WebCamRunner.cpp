@@ -17,7 +17,7 @@
 WebCamRunner::WebCamRunner() {
 
 
-	this->m_reanmed = false;
+	this->m_renamed = false;
 	// Config reader
 	cfg.readFile("webcam_config.cfg");
 	const Setting &root = cfg.getRoot();
@@ -49,15 +49,16 @@ WebCamRunner::WebCamRunner() {
 		timeinfo = localtime(&timer);
 
 		// Generate directory_name
-		string tstamp = asctime(timeinfo);
+                char tstamp [15];
+                strftime(tstamp,15,"%y%m%d-%H%M%S",timeinfo);
 
 		directory_name = "./recordings";
 
 		// create directory recordings if not existing
 		if(mkdir(directory_name.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)==-1);
 
-		// create driectroy with time stamp
-		directory_name = "./recordings/" + tstamp + "";
+		// create directory with time stamp
+		directory_name = directory_name + "/" + tstamp;
 
 		// Erase '\n' in timestamp
 		directory_name.erase(
@@ -74,7 +75,7 @@ WebCamRunner::WebCamRunner() {
 		mkdir(directory_name.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		m_state = true;
 
-		cout << "Disable RightLigth" << endl;
+		cout << "Disabling RightLight" << endl;
 
 		//check witch devices are found. (Test the first 50 possibilities)
 		int devCount[m_webcamCount];
@@ -222,7 +223,7 @@ void WebCamRunner::startWebcamCapture() {
 
 		for(int sec=0;sec<10;sec++){
 			sleep(1);
-			if(this->m_reanmed==true){
+			if(this->m_renamed==true){
 				break;
 			}
 		}
@@ -244,8 +245,8 @@ void WebCamRunner::startWebcamCapture() {
 			remove << "rm -r \"" << directory_name << "\"/tmp*";
 			system(remove.str().c_str());
 
-			cout << "Renamed = " << this->m_reanmed << endl;
-			if(this->m_reanmed==true){
+			cout << "Renamed = " << this->m_renamed << endl;
+			if(this->m_renamed==true){
 				cout << "Rename folder" << endl;
 				int result =
 						rename(this->getDirectoryName().c_str(),
@@ -275,5 +276,5 @@ string WebCamRunner::getDirectoryName() {
 
 void WebCamRunner::setNewName(string name) {
 	this->m_new_name = name;
-	this->m_reanmed = true;
+	this->m_renamed = true;
 }
