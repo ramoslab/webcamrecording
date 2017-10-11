@@ -1,0 +1,27 @@
+# Created by Andreas Ray on October, 11th 2017
+
+# Steps for installing building the most recent version of the webcam recording system
+
+(Steps to be taken only once)
+a) Clone repository into /home/tecnalia/code/video
+b) Create symbolic link to the CMakeLists_SYSTEM.txt: e.g.: 
+    cd build
+    ln -s CMakeLists_debian.txt CMakeLists.txt
+c) Create symbolic link to the executable file of the webcam server (does not exist yet - will be created in the next step) from the root directory of the webcam files, e.g.: 
+    cd build/executable
+    ln -s webcam_server ../../webcam_server
+
+(Steps to be taken each time a new version is available)
+1. git pull or git fetch and git merge
+2. Navigate to build directory
+3. run cmake in the local directory ("."): cmake .
+4. run make in the local directory: make
+
+If everything works this will create a new file (or replace the old file) named "webcam_server" in the build/executable directory.
+
+(only once)
+After running the compilation the first time you need to allow the user to execute the file by typing:
+    cd build/executable
+    chmode u+x webcam_server
+
+Now you should be able to run the webcam server from the root directory of the folder "webcamrecording"
