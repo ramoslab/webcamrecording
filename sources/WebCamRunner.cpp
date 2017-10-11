@@ -37,6 +37,8 @@ WebCamRunner::WebCamRunner() {
 		string err = "ERROR: webcamCount < 1";
 		throw err;
 	}
+        // Check if there are more webcams connected to the computer than specified in the config file
+        //if(m_webcamCount) 
 
 	m_state = true;
 	// Create Webcams
@@ -182,7 +184,7 @@ void WebCamRunner::startWebcamCapture() {
 			char *argbuff = (char*)arg.c_str();
 			char *argv[] = {"gst-launch", "alsasrc", "device=hw:1,0" ,"!" ,"audioconvert" ,"!", "audioresample" ,"!" ,"wavenc" ,"!", "filesink", argbuff, NULL};
 			execv("/usr/bin/gst-launch", argv);
-			cout << "execl failed";
+			cout << "execl for recording the audio stream failed\n";
 			exit(EXIT_FAILURE);
 		}
 

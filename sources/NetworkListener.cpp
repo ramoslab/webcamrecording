@@ -104,7 +104,7 @@ void NetworkListener::udplisten() {
 	// Open UDP Server Socket
 	server_sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (server_sock < 0) {
-		perror("ERROR: Could open socket");
+		perror("ERROR: Could not open socket");
 		return;
 	}
 
