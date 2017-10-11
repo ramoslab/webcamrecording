@@ -160,7 +160,7 @@ void WebCamRunner::startWebcamCapture() {
 
 	try {
 		// Initialize webcams
-		cout << "Initialize Webcams" << endl;
+		cout << "Initializing Webcams" << endl;
 		for (int i = 0; i < m_webcamCount; i++) {
 			this->m_webcam[i]->getWebcamStream(&m_captuer_frame[i]);
 		}
@@ -171,7 +171,7 @@ void WebCamRunner::startWebcamCapture() {
 			 video_thread[i] = this->writeVideoThread(i);
 		}
 
-		cout << "start capture:" << m_webcamCount << endl;
+		cout << "Starting capturing of video (CAM " << m_webcamCount << ")" << endl;
 		fps = m_webcam[0]->getFramerate();
 		frame_count = 0;
 
@@ -209,7 +209,7 @@ void WebCamRunner::startWebcamCapture() {
 			video_thread[i].join();
 		}
 
-		// shutdown audio porcess
+		// shutdown audio process
 		kill(pid, SIGTERM);
 		cout<<"end"<<endl;
 		// Combine Sound and Video
@@ -247,7 +247,7 @@ void WebCamRunner::startWebcamCapture() {
 
 			cout << "Renamed = " << this->m_renamed << endl;
 			if(this->m_renamed==true){
-				cout << "Rename folder" << endl;
+				cout << "Renaming folder" << endl;
 				int result =
 						rename(this->getDirectoryName().c_str(),
 								(this->getDirectoryName() + "_" + this->m_new_name).c_str());
