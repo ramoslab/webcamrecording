@@ -15,15 +15,20 @@ find_package(OpenCV REQUIRED)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 # Find and include pthread
 find_package(Threads REQUIRED)
+
 # Find libconfig
 #find_package(libconfig REQUIRED)
+#include_directories( ${LIBCONFIG_INCLUDE_DIRS} )
+# Find libconfig++
 find_package(libconfig++ REQUIRED)
 include_directories( ${LIBCONFIG++_INCLUDE_DIRS} )
-#include_directories( ${LIBCONFIG_INCLUDE_DIRS} )
 
 # Workaround for compiling. There is a file missing on Debian that specifies these Variables (LIBCONFIG_LIBRARIES)
 if (CONFIG_FOUND)
-   #set(LIBCONFIG_LIBRARIES "config")
+   set(LIBCONFIG_LIBRARIES "config")
+endif()
+
+if (CONFIG++_FOUND)
    set(LIBCONFIG++_LIBRARIES "config++")
 endif()
 
@@ -34,4 +39,4 @@ file(GLOB SOURCES "../sources/*.cpp")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY executable)
 add_executable( webcam_server ${SOURCES} )
 # Configure linker
-target_link_libraries( webcam_server ${OpenCV_LIBS} Threads::Threads ${LIBCONFIG++_LIBRARIES})
+target_link_libraries( webcam_server ${OpenCV_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${LIBCONFIG++_LIBRARIES})

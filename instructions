@@ -8,8 +8,9 @@ b) Create symbolic link to the CMakeLists_SYSTEM.txt: e.g.:
     cd build
     ln -s CMakeLists_debian.txt CMakeLists.txt
 c) Create symbolic link to the executable file of the webcam server (does not exist yet - will be created in the next step) from the root directory of the webcam files, e.g.: 
-    cd build/executable
-    ln -s webcam_server ../../webcam_server
+    ln -s build/executable/webcam_server webcam_server
+d) Create symbolic link to the configuration file of the webcam server:
+    ln -s build/executable/webcam_config.cfg webcam_config.cfg
 
 (Steps to be taken each time a new version is available)
 1. git pull or git fetch and git merge
