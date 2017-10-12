@@ -152,8 +152,11 @@ void WebCamRunner::openWebcams(){
 		                cout << "Disabling RightLight" << endl;
 				system(str.str().c_str());
 		                
+                                // Get actual system device id of the current camera
+                                int cam_id = stoi(fname.substr(5));
+
                                 // Create webcam object	
-			        this->m_webcam[open_cameras] = new Webcam(open_cameras, m_frame_height, m_frame_width, m_framerate, directory_name, tstamp);
+			        this->m_webcam[open_cameras] = new Webcam(cam_id, m_frame_height, m_frame_width, m_framerate, directory_name, tstamp);
 			        m_mutex[open_cameras].unlock();
 			        record[open_cameras] = true;
 
