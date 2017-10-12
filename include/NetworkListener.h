@@ -47,6 +47,9 @@ private:
 
 	void log(const char *e);
 
+	// State of the server (for state machine and feedback)
+	string server_state;
+
 public:
 	NetworkListener();
 	NetworkListener(unsigned short int port);

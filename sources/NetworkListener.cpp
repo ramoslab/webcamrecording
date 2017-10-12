@@ -1,5 +1,5 @@
 /*
- * NetwrokListener.cpp
+ * NetworkListener.cpp
  *
  *  Created on: Dec 3, 2015
  *      Author: Philipp Zajac
@@ -12,7 +12,11 @@
  * start Webcamrunner
  */
 void NetworkListener::startWebcam() {
-	runner->startWebcamCapture();
+	if (runner->getRunnerState()) {
+		runner->startWebcamCapture();
+	} else {
+		cout << "Not ready. Send 'OPEN' command first!" << endl;	
+	}
 }
 
 /**
@@ -43,6 +47,7 @@ NetworkListener::NetworkListener() {
 	m_port = 60000;
 	m_buffer_size = 256;
         runner = NULL;
+	server_state = "idle";
 }
 
 /*
@@ -52,6 +57,7 @@ NetworkListener::NetworkListener(unsigned short int port) {
 	m_port = port;
 	m_buffer_size = 256;
 	runner = NULL;
+	server_state = "idle";
 }
 
 /*
@@ -100,7 +106,6 @@ void NetworkListener::udplisten() {
 	// Thread vars
 	thread start_thread;
 	thread stop_thread;
-	bool runs = false;
 
 	// Open UDP Server Socket
 	server_sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -139,28 +144,33 @@ void NetworkListener::udplisten() {
 
 		cout << "Received: " << buffer << endl;
 		try {
-
-
                         // If the "open" command is received: Create the webcam manager (WebCamRunner)
-                        if (strcmp(buffer, open.c_str()) == 0 && runs == false) {
+                        if (strcmp(buffer, open.c_str()) == 0 && server_state == "idle") {
                             runner = new WebCamRunner();
+				if (runner->getRunnerState()) {
+					server_state = "ready";
+				}
                         }
 			
-                        // If the "start" command is received: Open cameras and start video capturing
-                        else if (strcmp(buffer, start.c_str()) == 0 && runs == false) {
-                                // Open Webcams
-                                this->runner->openWebcams();
-                                // Start video recording in threads
-				start_thread = this->startThread();
+                        // If the "start" command is received: Open cameras and start video capturing if webcam manager is ready
+                        else if (strcmp(buffer, start.c_str()) == 0) {
+				if (server_state == "ready") {
+                                	// Open Webcams
+                                	this->runner->openWebcams();
+                                	// Start video recording in threads
+					start_thread = this->startThread();
                                 
-                                runs = true;
-				cout << "Webcam Thread started" << endl;
+                                	server_state = "recording";
+					cout << "Started recording" << endl;
+				} else {
+					cout << "WebcamServer not ready: Check cameras and send 'open' command." << endl;
+				}
 			}
 			
                         // If the "stop" command is received: Stop recording and rename the folders
-			else if (strcmp(buffer, stop.c_str()) == 0 && runs == true) {
+			else if (strcmp(buffer, stop.c_str()) == 0 && server_state == "recording") {
 
-				runs = false;
+				server_state = "idle";
 				stop_thread = this->stopThread();
 				runner->setNewName(folder_name);
 				stop_thread.join();

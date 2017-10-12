@@ -16,8 +16,9 @@
  */
 WebCamRunner::WebCamRunner() {
 
-
+	this->runner_state = false;
 	this->m_renamed = false;
+
 	// Config reader
 	cfg.readFile("webcam_config.cfg");
 	const Setting &root = cfg.getRoot();
@@ -69,12 +70,12 @@ WebCamRunner::WebCamRunner() {
             m_webcamCount = cams_found;
         }
 
-        if (cams_found > 0) {
-
-	// Create Webcams
-        } else {
+        if (cams_found <= 0) {
             cout << "No cameras found" << endl;
-        }
+	    runner_state = false;
+        } else {
+	    runner_state = true;
+	}
 
 }
 
@@ -105,6 +106,11 @@ string WebCamRunner::execsysc(const char* cmd) {
  * Open webcams
  */
 void WebCamRunner::openWebcams(){
+	cout << "Runner state: " << runner_state << endl;
+	if (!runner_state) {
+		cout << "Not ready: Send 'OPEN' command first" << endl;
+		return;
+	} else {
 	cout << "Opening cameras" << endl;
         
         DIR *dpdf;
@@ -198,7 +204,7 @@ void WebCamRunner::openWebcams(){
 	} catch (string &e) {
 		throw;
 	}
-
+	}
 }
 
 /*
@@ -352,4 +358,8 @@ string WebCamRunner::getDirectoryName() {
 void WebCamRunner::setNewName(string name) {
 	this->m_new_name = name;
 	this->m_renamed = true;
+}
+
+bool WebCamRunner::getRunnerState() {
+	return this->runner_state;
 }

@@ -26,8 +26,11 @@ using namespace libconfig;
 
 class WebCamRunner {
 private:
-	// recorde state
+	// record state
 	bool m_state;
+
+	// WebCamRunner state
+	bool runner_state;
 
 	// Count of webcam captured 1-3
 	int m_webcamCount;
@@ -63,7 +66,6 @@ private:
         //Helper function for system calls
         string execsysc(const char*);  
 
-
 	// Class thread function
 	thread writeVideoThread(int i);
 
@@ -87,6 +89,9 @@ public:
 
 	// Sets the new name for the the file path.
 	void setNewName (string name);
+
+	// Returns the runner state
+	bool getRunnerState();
 };
 
 #endif /* WEBCAMRUNNER_H_ */
