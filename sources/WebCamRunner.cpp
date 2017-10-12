@@ -187,7 +187,7 @@ void WebCamRunner::openWebcams(){
 
                     string sys_audiohw = execsysc("arecord -l | grep 'HD Pro Webcam C920'");
                     audio_device_id = stoi(sys_audiohw.substr(5,1));
-                    cout << "Setting correct hardware id of audio device" << audio_device_id << endl;
+                    cout << "Setting correct hardware id of audio device (" << audio_device_id << ")" << endl;
                 
                 } else {
                     cout << "Problem opening /sys/class/video4linux/" << endl;
@@ -252,10 +252,20 @@ void WebCamRunner::startWebcamCapture() {
                         string hw = "device=hw:";
                         hw += audio_device_id;
                         hw += ",0";
+                        const char* hw_c = hw.c_str();
                         cout << "Using audio hardware: " << hw << endl;
 			char *argbuff = (char*)arg.c_str();
-			char *argv[] = {"gst-launch", "alsasrc", hw ,"!" ,"audioconvert" ,"!", "audioresample" ,"!" ,"wavenc" ,"!", "filesink", argbuff, NULL};
-			execv("/usr/bin/gst-launch", argv);
+
+                        vector<string> gst_args = {"gst-launch", "alsasrc", hw_c ,"!" ,"audioconvert" ,"!", "audioresample" ,"!" ,"wavenc" ,"!", "filesink", argbuff, NULL};
+                        const char **argv = new const char* [gst_args.size()+2];
+                        for (int j=0; j < gst_args.size()+1; ++j) {
+                            argv[j+1] = gst_args[j].c_str();
+                        }
+
+                        argv[gst_args.size()+1] = NULL;
+
+
+			execv("/usr/bin/gst-launch", (char **)argv);
 			cout << "execl for recording the audio stream failed\n";
 			exit(EXIT_FAILURE);
 		}
