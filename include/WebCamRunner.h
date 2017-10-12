@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sstream>
 #include <libconfig.h++>
+#include <dirent.h>
 
 using namespace libconfig;
 

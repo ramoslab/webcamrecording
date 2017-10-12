@@ -8,7 +8,7 @@ find_package(Threads REQUIRED)
 # Find libconfig
 find_package(libconfig++ REQUIRED)
 include_directories( ${libconfig++_INCLUDE_DIRS} )
-# find include files and source files
+# Find include files and source files
 include_directories(../include)
 file(GLOB SOURCES "../sources/*.cpp")
 # Add executable to the makefile

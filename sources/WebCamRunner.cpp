@@ -37,12 +37,43 @@ WebCamRunner::WebCamRunner() {
 		string err = "ERROR: webcamCount < 1";
 		throw err;
 	}
+        
         // Check if there are more webcams connected to the computer than specified in the config file
-        //if(m_webcamCount) 
+        cout << "Checking available cameras" << endl;
+        DIR *dpdf;
+        struct dirent *epdf;
+        int cams_found = 0;
+
+        dpdf = opendir("/sys/class/video4linux/");
+        if (dpdf != NULL){
+            // Check how many cameras are found
+            while (epdf = readdir(dpdf)) {
+                string fname = epdf->d_name;
+                string target = "video";
+                size_t found = fname.find(target);
+
+                if (found < fname.length()) {
+                    cams_found++;
+                    cout << "Found camera: " << fname << endl;
+                }
+            }
+        } else {
+            cout << "Problem opening /sys/class/video4linux/" << endl;
+        }
+
+        closedir(dpdf);
+
+        if (cams_found < m_webcamCount) {
+            cout << "Number of cameras connected less then specified in configuration file." << endl;
+            cout << "Using only available cameras: " << cams_found << endl;
+            m_webcamCount = cams_found;
+        }
+
+        if (cams_found > 0) {
 
 	m_state = true;
 	// Create Webcams
-	cout << "Creating Webcams" << endl;
+	cout << "Opening cameras" << endl;
 	try {
 		// Generate time stamp for directory_name and video files
 		time_t timer;
@@ -77,51 +108,52 @@ WebCamRunner::WebCamRunner() {
 		mkdir(directory_name.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		m_state = true;
 
-		cout << "Disabling RightLight" << endl;
+                int open_cameras = 0;
+                dpdf = opendir("/sys/class/video4linux/");
+                if (dpdf != NULL){
+                    // Check how many cameras are found
+                    while (epdf = readdir(dpdf)) {
+                        if (open_cameras < m_webcamCount) {
+                            // Find cameras 
+                            string fname = epdf->d_name;
+                            string target = "video";
+                            size_t found = fname.find(target);
+                            
+                            // Open camera
+                            if (found < fname.length()) {
+				// Disables the RightLight functionality for Logitech Webcams with v4l2-ctl driver
+			        stringstream str;
+                                str << "v4l2-ctl -d " << "/dev/" << fname << " -c exposure_auto_priority=0";
+			        //devCount[i] = j;
+		                cout << "Disabling RightLight" << endl;
+				system(str.str().c_str());
+		                
+                                // Create webcam object	
+			        this->m_webcam[open_cameras] = new Webcam(open_cameras, m_frame_height, m_frame_width, m_framerate, directory_name, tstamp);
+			        m_mutex[open_cameras].unlock();
+			        record[open_cameras] = true;
 
-		//check witch devices are found. (Test the first 50 possibilities)
-		int devCount[m_webcamCount];
-		int j = 0;
-		for (int i = 0; i < m_webcamCount; i++) {
-			stringstream str;
+                                open_cameras++;
+                                cout << "Opened camera: " << fname << endl;
+                            }
 
-			string dev = "/dev/video" + std::to_string(j);
-			struct stat buffer;
+                        }
+                    }
+		
+                    m_mutex_start.unlock();
+                
+                } else {
+                    cout << "Problem opening /sys/class/video4linux/" << endl;
+                }
 
-			while(true){
-				// stat() checks if device exist
-				if(stat(dev.c_str(),&buffer) == -1){
-					std:cerr << "ERROR: /dev/video" << j << " not found" <<endl;
-					j++;
-				}else{
-					//cout << "/dev/video" << j << "found" << endl;
-					str << "v4l2-ctl -d /dev/video" << j << " -c exposure_auto_priority=0";
-					devCount[i] = j;
-					// Disables the RightLight functionality for Logitech Webcams with v4l2-ctl driver
-					system(str.str().c_str());
-					j++;
-					break;
-				}
-				if(j>=50){
-					// Throw error if not all devices are found in /dev
-					string err = "ERROR: Not all devices found \n";
-					throw err;
-				}
-			}
-		}
-
-		// Create webcam classes and unlock mutex
-		for (int i = 0; i < m_webcamCount; i++) {
-			// i+1 if build in camera is not used in for example notebook
-			this->m_webcam[i] = new Webcam(devCount[i], m_frame_height, m_frame_width, m_framerate, directory_name, tstamp);
-			m_mutex[i].unlock();
-			record[i] = true;
-		}
-		m_mutex_start.unlock();
+                closedir(dpdf);
+		
 	} catch (string &e) {
 		throw;
 	}
-	// Unlock all mutexes
+        } else {
+            cout << "No cameras found" << endl;
+        }
 
 }
 
