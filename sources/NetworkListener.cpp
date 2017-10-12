@@ -42,7 +42,7 @@ thread NetworkListener::stopThread() {
 NetworkListener::NetworkListener() {
 	m_port = 60000;
 	m_buffer_size = 256;
-	runner = NULL;
+        runner = NULL;
 }
 
 /*
@@ -90,6 +90,7 @@ void NetworkListener::udplisten() {
 	char buffer[m_buffer_size];
 	string start = "start";
 	string stop = "stop";
+	string open = "open";
 	// Socket vars
 	int server_sock, rc, n;
 	socklen_t server_length;
@@ -139,16 +140,24 @@ void NetworkListener::udplisten() {
 		cout << "Received: " << buffer << endl;
 		try {
 
-			// If start command is received
-			if (strcmp(buffer, start.c_str()) == 0 && runs == false) {
-				runs = true;
-				runner = new WebCamRunner();
 
+                        // If the "open" command is received: Create the webcam manager (WebCamRunner)
+                        if (strcmp(buffer, open.c_str()) == 0 && runs == false) {
+                            runner = new WebCamRunner();
+                        }
+			
+                        // If the "start" command is received: Open cameras and start video capturing
+                        else if (strcmp(buffer, start.c_str()) == 0 && runs == false) {
+                                // Open Webcams
+                                this->runner->openWebcams();
+                                // Start video recording in threads
 				start_thread = this->startThread();
+                                
+                                runs = true;
 				cout << "Webcam Thread started" << endl;
 			}
-
-			// if stop command is received
+			
+                        // If the "stop" command is received: Stop recording and rename the folders
 			else if (strcmp(buffer, stop.c_str()) == 0 && runs == true) {
 
 				runs = false;

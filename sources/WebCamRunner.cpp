@@ -71,10 +71,34 @@ WebCamRunner::WebCamRunner() {
 
         if (cams_found > 0) {
 
-	m_state = true;
 	// Create Webcams
+        } else {
+            cout << "No cameras found" << endl;
+        }
+
+}
+
+/*
+ *  Destructor
+ *  Delete Webcams for safe shutdown
+ */
+WebCamRunner::~WebCamRunner() {
+
+}
+
+/*
+ * Open webcams
+ */
+void WebCamRunner::openWebcams(){
 	cout << "Opening cameras" << endl;
-	try {
+        
+        DIR *dpdf;
+        struct dirent *epdf;
+        int cams_found = 0;
+	
+        m_state = true;
+	
+        try {
 		// Generate time stamp for directory_name and video files
 		time_t timer;
 		struct tm * timeinfo;
@@ -151,17 +175,6 @@ WebCamRunner::WebCamRunner() {
 	} catch (string &e) {
 		throw;
 	}
-        } else {
-            cout << "No cameras found" << endl;
-        }
-
-}
-
-/*
- *  Destructor
- *  Delete Webcams for safe shutdown
- */
-WebCamRunner::~WebCamRunner() {
 
 }
 

@@ -70,6 +70,9 @@ public:
 	WebCamRunner();
 	virtual ~WebCamRunner();
 
+        // Open the webcams
+        void openWebcams();
+
 	// Start the webcam capturing
 	void startWebcamCapture();
 	// Stops the webcam capturing
