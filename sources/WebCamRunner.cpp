@@ -250,22 +250,13 @@ void WebCamRunner::startWebcamCapture() {
 		if (pid == 0) {
 			string arg = "location=./"+directory_name+"/audio.wav";
                         string hw = "device=hw:";
-                        hw += audio_device_id;
+                        hw += to_string(audio_device_id);
                         hw += ",0";
                         const char* hw_c = hw.c_str();
-                        cout << "Using audio hardware: " << hw << endl;
+                        cout << "Using audio recording hardware: " << hw << endl;
 			char *argbuff = (char*)arg.c_str();
 
-                        vector<string> gst_args = {"gst-launch", "alsasrc", hw_c ,"!" ,"audioconvert" ,"!", "audioresample" ,"!" ,"wavenc" ,"!", "filesink", argbuff, NULL};
-                        const char **argv = new const char* [gst_args.size()+2];
-                        for (int j=0; j < gst_args.size()+1; ++j) {
-                            argv[j+1] = gst_args[j].c_str();
-                        }
-
-                        argv[gst_args.size()+1] = NULL;
-
-
-			execv("/usr/bin/gst-launch", (char **)argv);
+			execl("/usr/bin/gst-launch", "gst-launch", "alsasrc", hw_c ,"!" ,"audioconvert" ,"!", "audioresample" ,"!" ,"wavenc" ,"!", "filesink", argbuff, "");
 			cout << "execl for recording the audio stream failed\n";
 			exit(EXIT_FAILURE);
 		}
