@@ -142,10 +142,14 @@ void NetworkListener::udplisten() {
 			continue;
 		}
 
+		// NUL-terminating message buffer to prevent messages from being received twice.
+		buffer[m_buffer_size] = '\0';
 		cout << "Received: " << buffer << endl;
+
 		try {
                         // If the "open" command is received: Create the webcam manager (WebCamRunner)
                         if (strcmp(buffer, open.c_str()) == 0 && server_state == "idle") {
+			    delete runner;
                             runner = new WebCamRunner();
 				if (runner->getRunnerState()) {
 					server_state = "ready";

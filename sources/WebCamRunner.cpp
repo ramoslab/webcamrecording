@@ -84,7 +84,7 @@ WebCamRunner::WebCamRunner() {
  *  Delete Webcams for safe shutdown
  */
 WebCamRunner::~WebCamRunner() {
-
+	cout << "WebCamRunner destroyed" << endl;
 }
 /*
  * Helper function to execute system calls and return the output
@@ -106,7 +106,6 @@ string WebCamRunner::execsysc(const char* cmd) {
  * Open webcams
  */
 void WebCamRunner::openWebcams(){
-	cout << "Runner state: " << runner_state << endl;
 	if (!runner_state) {
 		cout << "Not ready: Send 'OPEN' command first" << endl;
 		return;
@@ -153,6 +152,8 @@ void WebCamRunner::openWebcams(){
 		mkdir(directory_name.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 		m_state = true;
 
+		cout << directory_name << endl;
+
                 int open_cameras = 0;
                 dpdf = opendir("/sys/class/video4linux/");
                 if (dpdf != NULL){
@@ -189,7 +190,6 @@ void WebCamRunner::openWebcams(){
                     }
 		
                     m_mutex_start.unlock();
-        
 
                     string sys_audiohw = execsysc("arecord -l | grep 'HD Pro Webcam C920'");
                     audio_device_id = stoi(sys_audiohw.substr(5,1));
@@ -247,20 +247,26 @@ void WebCamRunner::startWebcamCapture() {
 			 video_thread[i] = this->writeVideoThread(i);
 		}
 
-		cout << "Starting capturing of video (CAM " << m_webcamCount << ")" << endl;
+		cout << "Starting capturing of video" << endl;
 		fps = m_webcam[0]->getFramerate();
 		frame_count = 0;
+
+		cout << directory_name << endl;
 
 		// start Audio capturing process with gstreamer
 		pid_t pid = fork();
 		if (pid == 0) {
-			string arg = "location=./"+directory_name+"/audio.wav";
+			string arg = "location="+directory_name+"/audio.wav";
                         string hw = "device=hw:";
                         hw += to_string(audio_device_id);
                         hw += ",0";
                         const char* hw_c = hw.c_str();
                         cout << "Using audio recording hardware: " << hw << endl;
 			char *argbuff = (char*)arg.c_str();
+
+			cout << arg << endl;
+			cout << argbuff << endl;
+			cout << hw_c << endl;
 
 			execl("/usr/bin/gst-launch", "gst-launch", "alsasrc", hw_c ,"!" ,"audioconvert" ,"!", "audioresample" ,"!" ,"wavenc" ,"!", "filesink", argbuff, "");
 			cout << "execl for recording the audio stream failed\n";
@@ -269,7 +275,6 @@ void WebCamRunner::startWebcamCapture() {
 
 		// start the capturing loop
 		do {
-
 			for (int i = 0; i < m_webcamCount; i++) {
 				m_mutex[i].lock();
 				m_webcam[i]->getWebcamStream(&m_captuer_frame[i]);
@@ -291,11 +296,12 @@ void WebCamRunner::startWebcamCapture() {
 		}
 
 		// shutdown audio process
-		kill(pid, SIGTERM);
-		cout<<"end"<<endl;
-		// Combine Sound and Video
-		//avconv -i Webcam1.avi -i audio.wav -acodec copy -vcodec copy Webcam1withaudio.avi
-
+		int success;
+		cout << pid << endl;
+		success = kill(pid, SIGTERM);
+		cout << "Ended audio process: " << success << endl;
+		cout << pid << endl;
+		
 		string webcam_name[m_webcamCount];
 		for (int i = 0; i < m_webcamCount; i++) {
 			webcam_name[i] = m_webcam[i]->getFilename();
@@ -329,8 +335,7 @@ void WebCamRunner::startWebcamCapture() {
 			cout << "Renamed = " << this->m_renamed << endl;
 			if(this->m_renamed==true){
 				cout << "Renaming folder" << endl;
-				int result =
-						rename(this->getDirectoryName().c_str(),
+				int result = rename(this->getDirectoryName().c_str(),
 								(this->getDirectoryName() + "_" + this->m_new_name).c_str());
 				if (result != 0) {
 					string err = "Error renaming file";
