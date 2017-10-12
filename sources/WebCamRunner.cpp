@@ -85,6 +85,21 @@ WebCamRunner::WebCamRunner() {
 WebCamRunner::~WebCamRunner() {
 
 }
+/*
+ * Helper function to execute system calls and return the output
+ */
+string WebCamRunner::execsysc(const char* cmd) {
+    array<char, 128> buffer;
+    string result;
+    shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) throw runtime_error("popen() failed!");
+    while (!feof(pipe.get())) {
+        if (fgets(buffer.data(), 128, pipe.get()) != nullptr) {
+            result += buffer.data();
+        }
+    }
+    return result;
+}
 
 /*
  * Open webcams
@@ -168,6 +183,11 @@ void WebCamRunner::openWebcams(){
                     }
 		
                     m_mutex_start.unlock();
+        
+
+                    string sys_audiohw = execsysc("arecord -l | grep 'HD Pro Webcam C920'");
+                    audio_device_id = stoi(sys_audiohw.substr(5,1));
+                    cout << "Setting correct hardware id of audio device" << audio_device_id << endl;
                 
                 } else {
                     cout << "Problem opening /sys/class/video4linux/" << endl;
@@ -229,8 +249,12 @@ void WebCamRunner::startWebcamCapture() {
 		pid_t pid = fork();
 		if (pid == 0) {
 			string arg = "location=./"+directory_name+"/audio.wav";
+                        string hw = "device=hw:";
+                        hw += audio_device_id;
+                        hw += ",0";
+                        cout << "Using audio hardware: " << hw << endl;
 			char *argbuff = (char*)arg.c_str();
-			char *argv[] = {"gst-launch", "alsasrc", "device=hw:1,0" ,"!" ,"audioconvert" ,"!", "audioresample" ,"!" ,"wavenc" ,"!", "filesink", argbuff, NULL};
+			char *argv[] = {"gst-launch", "alsasrc", hw ,"!" ,"audioconvert" ,"!", "audioresample" ,"!" ,"wavenc" ,"!", "filesink", argbuff, NULL};
 			execv("/usr/bin/gst-launch", argv);
 			cout << "execl for recording the audio stream failed\n";
 			exit(EXIT_FAILURE);

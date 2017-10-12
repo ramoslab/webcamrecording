@@ -34,6 +34,7 @@ private:
 	int m_frame_width;
 	int m_frame_height;
 	int m_framerate;
+        int audio_device_id;
 
 	static const int max_webcam_count = 3;
 	// Webcam objects
@@ -58,6 +59,9 @@ private:
 	//File Renaming
 	bool m_renamed;
 	string m_new_name;
+
+        //Helper function for system calls
+        string execsysc(const char*);  
 
 
 	// Class thread function
